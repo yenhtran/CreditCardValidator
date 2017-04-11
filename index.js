@@ -1,8 +1,11 @@
-const   chalk = require('chalk'),
+'use strict';
+
+var   chalk = require('chalk'),
         clear = require('clear'),
         figlet = require('figlet'),
         fs = require('fs'),
         readline = require('readline'),
+        CreditCard = require('./creditCard.js'),
         bankAccounts =[],
         content;
 
@@ -33,6 +36,21 @@ function parseContent(data) {
 }
 
 function processAccount(transactions) {
+		transactions.forEach(function(activity){
+
+			if (activity[0] === 'Add') {
+				var name = activity[1],
+						cardNumber = activity[2],
+						balance = activity[3];
+
+				var newAccount = new CreditCard(name, cardNumber, balance);
+			} else if (activity[0] === 'Charge') {
+
+			} else if (activity[0] === 'Credit') {
+
+			}
+		});
+
 	//	loop through the process array
 //		if first word is 'ADD'
 //			take the next word (name) and check the accounts array to see if account exists
@@ -50,7 +68,6 @@ function processAccount(transactions) {
 
 readContent(function(err, content) {
 	parseContent(content);
-
 })
 
 

@@ -31,61 +31,46 @@ function parseContent(data) {
 		accountRequests.push(action.split(' '));
 	});
 
-	processAccount(accountRequests);
-	// return activity;
+	processTransactions(accountRequests);
 }
 
-function processAccount(transactions) {
+function foundAccount(name) {
+	return bankAccounts.find(function(transaction) {
+		return (transaction.name === name) ? true : false
+	});
+}
+
+function processTransactions(transactions) {
 		transactions.forEach(function(activity){
+			var name = activity[1];
 
 			if (activity[0] === 'Add') {
-				var name = activity[1],
-						cardNumber = activity[2],
-						balance = activity[3];
+				var cardNumber = activity[2],
+						cardLimit = parseInt(activity[3].slice(1));
 
-				var newAccount = new CreditCard(name, cardNumber, balance);
-			} else if (activity[0] === 'Charge') {
+				return bankAccounts.push(new CreditCard(name, cardNumber, cardLimit));
 
-			} else if (activity[0] === 'Credit') {
+			} else {
+				var currentCreditCard = foundAccount(name),
+						amount = parseInt(activity[2].slice(1));
 
-			}
-		});
+						if (!currentCreditCard) {
+							console.log('Account does not exist for ' + name);
+						} else {
+							if (activity[0] === 'Charge') {
+								currentCreditCard.charge(amount)
 
-	//	loop through the process array
-//		if first word is 'ADD'
-//			take the next word (name) and check the accounts array to see if account exists
-//				if account exists, return err 'account already exists'
-//				if account does not exist, create new credit card (from Class)
-//		if first word is 'CHARGE'
-//			take the following word (name) and check the accounts array to see if account exists
-//				if the account exists, debit the balance
-//				if the account does not exist, return err 'account does not exist'
-//		if first word is 'CREDIT'
-//			take the following word (name) and check the accounts array to see if account exists
-//				if the account exists, credit the balance
-//				if the account does not exist, return err 'account does not exist'
-}
+							} else if (activity[0] === 'Credit') {
+								currentCreditCard.credit(amount)
+							}
+						}
+			};
+	});
+};
 
 readContent(function(err, content) {
 	parseContent(content);
 })
-
-
-//STRUCTURE?
-// bankAccounts = [
-// 	{ name: 'Tom',
-// 		accountNumber: 4111111111111111,
-// 		balance: $1000
-// 	},
-// 	{ name: 'Lisa',
-// 		accountNumber: 5454545454545454,
-// 		balance: $3000
-// 	},
-// 	{ name: 'Quincy',
-// 		accountNumber: 1234567890123456,
-// 		balance: $2000
-// 	}
-// ]
 
 //==== STDIN SPIKE (for later)
 // rl.question('Ready to create credit card accounts?', function(answer){

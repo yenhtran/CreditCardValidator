@@ -6,6 +6,7 @@ var   chalk = require('chalk'),
         fs = require('fs'),
         readline = require('readline'),
         CreditCard = require('./creditCard.js'),
+        CardValidator = require('./cardValidator.js'),
         bankAccounts =[],
         content;
 
@@ -46,24 +47,24 @@ function processTransactions(transactions) {
 
 			if (activity[0] === 'Add') {
 				var cardNumber = activity[2],
-						cardLimit = parseInt(activity[3].slice(1));
+						cardLimit = parseInt(activity[3].slice(1)),
+						cardValidator = new CardValidator(cardNumber).lunh10Validate();
 
-				return bankAccounts.push(new CreditCard(name, cardNumber, cardLimit));
+				cardValidator ? bankAccounts.push(new CreditCard(name, cardNumber, cardLimit)) : 'error'
 
 			} else {
 				var currentCreditCard = foundAccount(name),
 						amount = parseInt(activity[2].slice(1));
 
-						if (!currentCreditCard) {
-							console.log('Account does not exist for ' + name);
-						} else {
-							if (activity[0] === 'Charge') {
-								currentCreditCard.charge(amount)
-
-							} else if (activity[0] === 'Credit') {
-								currentCreditCard.credit(amount)
-							}
-						}
+				if (!currentCreditCard) {
+					return false;
+				} else {
+					if (activity[0] === 'Charge') {
+						currentCreditCard.charge(amount)
+					} else if (activity[0] === 'Credit') {
+						currentCreditCard.credit(amount)
+					}
+				}
 			};
 	});
 };

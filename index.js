@@ -7,7 +7,7 @@ var chalk = require('chalk'),
     readline = require('readline'),
     CreditCard = require('./creditCard.js'),
     CardValidator = require('./cardValidator.js'),
-    bankAccounts = [],
+    accounts = [],
     content;
 
 // clear();
@@ -24,53 +24,68 @@ function readContent(callback) {
     });
 }
 
-function parseContent(data) {
-    var processes = data.split('\n'),
-        accountRequests = [];
-
-    processes.forEach(function(action) {
-        accountRequests.push(action.split(' '));
-    });
-
-    processTransactions(accountRequests);
+function parseData(data) {
+    var transactions = data.split('\n');
+    // transactionRequest(transactions);
+    processTransactions(transactions);
 }
 
-function foundAccount(name) {
-    return bankAccounts.find(function(transaction) {
-        return (transaction.name === name) ? true : false
+// function transactionRequest(transactions) {
+// 	// console.log('TRANSACTIONS: ', transactions);
+// 	transactions.forEach(function(transaction){
+// 		var userForm = {};
+
+// 		userForm.name = transaction.match(/(?:\S+\s+){1}(\S+)/)[1];
+// 		userForm.action = transaction.match(/(^|\W)Add|Charge|Credit($|\W)/g)[0];
+// 		userForm.cardNumber = (transaction.match(/\d{1,16}/g)[0]) ? transaction.match(/\d{1,16}/g)[0] : false
+// 		console.log(userForm);
+// 	})
+// }
+
+function findAccount(name) {
+    return accounts.find(function(account) {
+        return (account.name === name) ? true : false
     });
 }
 
 function processTransactions(transactions) {
-    transactions.forEach(function(activity) {
-        var name = activity[1];
+    transactions.forEach(function(transaction) {
+        var name = transaction.match(/(?:\S+\s+){1}(\S+)/)[1],
+        		action = transaction.match(/(^|\W)Add|Charge|Credit($|\W)/g)[0];
 
-        if (activity[0] === 'Add') {
-            var cardNumber = activity[2],
-                cardLimit = parseInt(activity[3].slice(1)),
-                cardValidator = new CardValidator(cardNumber).lunh10Validate();
+        if (action === 'Add') {
+            var cardNumber = transaction.match(/\d{1,16}/g)[0],
+            		cardLimit =  parseInt(transaction.match(/\$\d+/g)[0].slice(1)),
+            		cardValidator = new CardValidator(cardNumber);
 
-            cardValidator ? bankAccounts.push(new CreditCard(name, cardNumber, cardLimit)) : 'error'
+            cardValidator.lunh10Validate() ? accounts.push(new CreditCard(name, cardNumber, cardLimit)) : accounts.push(name + '-error')
 
         } else {
-            var currentCreditCard = foundAccount(name),
-                amount = parseInt(activity[2].slice(1));
 
-            if (!currentCreditCard) {
-                return false;
-            } else {
-                if (activity[0] === 'Charge') {
-                    currentCreditCard.charge(amount)
-                } else if (activity[0] === 'Credit') {
-                    currentCreditCard.credit(amount)
-                }
+        	if (findAccount(name)) {
+            var currentCreditCard = findAccount(name),
+                amount = parseInt(transaction.match(/\$\d+/g)[0].slice(1)),
+                cardValidator = new CardValidator(currentCreditCard.cardNumber);
+
+            if (action === 'Charge' && cardValidator.lunh10Validate()) {
+                currentCreditCard.charge(amount)
+            } else if (action === 'Credit ' && cardValidator.lunh10Validate()) {
+                currentCreditCard.credit(amount)
             }
+        	} else {
+        		return false;
+        	}
         };
     });
-};
+    produceSummary(accounts);
+}
+
+function produceSummary(accounts) {
+	console.log(accounts);
+}
 
 readContent(function(err, content) {
-    parseContent(content);
+    parseData(content);
 })
 
 //==== STDIN SPIKE (for later)

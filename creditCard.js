@@ -9,11 +9,15 @@ class CreditCard {
     }
 
     charge(amount) {
-        return this.balance += amount;
+    	return (this.checkCreditLimit(amount)) ? this.balance += amount : false
     }
 
     credit(amount) {
-        return this.balance -= amount;
+      return this.balance -= amount;
+    }
+
+    checkCreditLimit(amount) {
+    	return this.balance + amount < this.cardLimit ? true : false
     }
 }
 

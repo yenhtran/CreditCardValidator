@@ -6,6 +6,3 @@ Charge Tom $800
 Charge Lisa $7
 Credit Lisa $100
 Credit Quincy $200
-Credit Yen $100
-Credit Quincy $200
-Add Lucy 98765432 $4000

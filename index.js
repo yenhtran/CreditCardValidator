@@ -8,7 +8,7 @@ var chalk = require('chalk'),
     CreditCard = require('./creditCard.js'),
     CardValidator = require('./cardValidator.js'),
     accounts = [],
-    content;
+    transactionRequests = [];
 
 // clear();
 // console.log(
@@ -17,30 +17,12 @@ var chalk = require('chalk'),
 //     )
 // );
 
-function readContent(callback) {
-    fs.readFile('input.txt', 'utf8', function(err, content) {
+function readContent(fileName, callback) {
+    fs.readFile(fileName, 'utf8', function(err, content) {
         if (err) return console.log(err);
         callback(null, content);
     });
 }
-
-function parseData(data) {
-    var transactions = data.split('\n');
-    // transactionRequest(transactions);
-    processTransactions(transactions);
-}
-
-// function transactionRequest(transactions) {
-// 	// console.log('TRANSACTIONS: ', transactions);
-// 	transactions.forEach(function(transaction){
-// 		var userForm = {};
-
-// 		userForm.name = transaction.match(/(?:\S+\s+){1}(\S+)/)[1];
-// 		userForm.action = transaction.match(/(^|\W)Add|Charge|Credit($|\W)/g)[0];
-// 		userForm.cardNumber = (transaction.match(/\d{1,16}/g)[0]) ? transaction.match(/\d{1,16}/g)[0] : false
-// 		console.log(userForm);
-// 	})
-// }
 
 function findAccount(name) {
     return accounts.find(function(account) {
@@ -51,53 +33,88 @@ function findAccount(name) {
 function processTransactions(transactions) {
     transactions.forEach(function(transaction) {
         var name = transaction.match(/(?:\S+\s+){1}(\S+)/)[1],
-        		action = transaction.match(/(^|\W)Add|Charge|Credit($|\W)/g)[0];
+            action = transaction.match(/(^|\W)Add|Charge|Credit($|\W)/g)[0].trim();
 
         if (action === 'Add') {
             var cardNumber = transaction.match(/\d{1,16}/g)[0],
-            		cardLimit =  parseInt(transaction.match(/\$\d+/g)[0].slice(1)),
-            		cardValidator = new CardValidator(cardNumber);
+                cardLimit = parseInt(transaction.match(/\$\d+/g)[0].slice(1)),
+                cardValidator = new CardValidator(cardNumber);
 
-            cardValidator.lunh10Validate() ? accounts.push(new CreditCard(name, cardNumber, cardLimit)) : accounts.push(name + '-error')
+            cardValidator.lunh10Validate() ? accounts.push(new CreditCard(name, cardNumber, cardLimit)) : accounts.push(new CreditCard(name, 'error', ''))
 
         } else {
 
-        	if (findAccount(name)) {
-            var currentCreditCard = findAccount(name),
-                amount = parseInt(transaction.match(/\$\d+/g)[0].slice(1)),
-                cardValidator = new CardValidator(currentCreditCard.cardNumber);
+            if (findAccount(name)) {
+                var currentCreditCard = findAccount(name),
+                    amount = parseInt(transaction.match(/\$\d+/g)[0].slice(1)),
+                    cardValidator = new CardValidator(currentCreditCard.cardNumber);
 
-            if (action === 'Charge' && cardValidator.lunh10Validate()) {
-                currentCreditCard.charge(amount)
-            } else if (action === 'Credit ' && cardValidator.lunh10Validate()) {
-                currentCreditCard.credit(amount)
+                if (action === 'Charge' && cardValidator.lunh10Validate()) {
+                    currentCreditCard.charge(amount)
+                } else if (action === 'Credit' && cardValidator.lunh10Validate()) {
+                    currentCreditCard.credit(amount)
+                }
+            } else {
+                return false;
             }
-        	} else {
-        		return false;
-        	}
         };
     });
-    produceSummary(accounts);
 }
 
-function produceSummary(accounts) {
-	console.log(accounts);
+function compare(card1, card2) {
+    if (card1.name < card2.name)
+        return -1;
+    if (card1.name > card2.name)
+        return 1;
+    return 0;
 }
 
-readContent(function(err, content) {
-    parseData(content);
-})
+function generateSummary(accounts) {
+    var userSummaries = [];
 
-//==== STDIN SPIKE (for later)
-// rl.question('Ready to create credit card accounts?', function(answer){
-//     console.log("Thank you for your feedback: " + answer);
-//     rl.close();
-// });
-//
-//=====Other option to readStream
-// // const rl = readline.createInterface({
-//     input: fs.createReadStream('input.txt')
-// });
-// rl.on('line', function(line){
-// 	console.log('Line: ', line);
-// });
+    accounts.sort(compare).forEach(function(account) {
+        if (account.cardNumber !== 'error') {
+            userSummaries.push('' + account.name + ': $' + account.balance + '');
+        } else {
+            userSummaries.push('' + account.name + ': ' + account.cardNumber + '');
+        }
+    });
+
+    userSummaries.forEach(function(summary) {
+        process.stdout.write(`${summary}` + '\n');
+    });
+}
+
+function beginProgram(i) {
+    process.stdout.write(`Please enter the transaction you would like to perform.\nType 'exit' to exit the program.\nType 'summary' to generate summary.`);
+    process.stdout.write("   >   ");
+}
+
+process.stdin.on('data', function(data) {
+    var response = data.toString().trim();
+
+    if (response.match(/^load\W/)) {
+    	var filePath = response.match(/(?<=load\s).*$/);
+
+    	readContent(filePath);
+    }
+    switch (response) {
+    	case 'exit':
+    		process.exit();
+    		break;
+    	case 'summary':
+    		processTransactions(transactionRequests);
+    		clear();
+    		generateSummary(accounts);
+    		process.exit();
+    		break;
+    	case 'load':
+    		process.stdout.write(`${response}` + '\n');
+    		process.exit();
+    		break;
+    	default:
+    		transactionRequests.push(response);
+    }
+});
+
+beginProgram(0);

@@ -1,5 +1,7 @@
 'use strict';
 
+var _ = require('lodash');
+
 class CardValidator {
     constructor(number) {
         this.number = number;
@@ -7,16 +9,10 @@ class CardValidator {
 
     lunh10Validate() {
         if (this.isValidLength(this.number)) {
-            //convert to Promises?
             var numbers = this.number.split('').reverse(),
-                evenIndexes = this.createEvenIndexes(numbers),
-                evenIndexesTurnedInt = this.convertStringsIntoInt(evenIndexes),
-                reducedEvens = this.findSum(evenIndexesTurnedInt),
-                oddIndexes = this.createOddIndexes(numbers),
-                doubledOddsAndSplit = this.doubleIndexValues(oddIndexes),
-                doubledOddsAndSplitTurnedInt = this.convertStringsIntoInt(doubledOddsAndSplit),
-                reducedOdds = this.findSum(doubledOddsAndSplitTurnedInt),
-                combinedSum = reducedEvens + reducedOdds;
+            		reducedEvenIndexes = this.findSum(this.convertStringsIntoInt(this.createEvenIndexes(numbers))),
+            		reducedOddIndexes = this.findSum(this.convertStringsIntoInt(this.doubleIndexValues(this.createOddIndexes(numbers)))),
+            		combinedSum = reducedEvenIndexes + reducedOddIndexes;
 
             return combinedSum % 10 === 0 ? true : false
         } else {
@@ -69,6 +65,7 @@ class CardValidator {
     }
 
     convertStringsIntoInt(arr) {
+    		// console.log(arr);
         return arr.map(function(num) {
             return parseInt(num)
         })

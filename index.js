@@ -5,20 +5,20 @@ var chalk = require('chalk'),
     figlet = require('figlet'),
     fs = require('fs'),
     readline = require('readline'),
-    CreditCard = require('./creditCard.js'),
-    CardValidator = require('./cardValidator.js'),
+    CreditCard = require('./lib/creditCard.js'),
+    CardValidator = require('./lib/cardValidator.js'),
     accounts = [],
     transactionRequests = [];
 
-// clear();
-// console.log(
-//     chalk.yellow(
-//         figlet.textSync('Braintree Challenge', { horizontalLayout: 'full'})
-//     )
-// );
+clear();
+console.log(
+    chalk.yellow(
+        figlet.textSync('Braintree Challenge', { horizontalLayout: 'full'})
+    )
+);
 
 function readContent(fileName, callback) {
-    fs.readFile(fileName, 'utf8', function(err, content) {
+    fs.readFile('./data/' + fileName, 'utf8', function(err, content) {
         if (err) return console.log(err);
         callback(null, content);
     });
@@ -31,13 +31,19 @@ function findAccount(name) {
 }
 
 function processTransactions(transactions) {
+		const reName = /(?:\S+\s+){1}(\S+)/,
+					reAction = /(^|\W)Add|Charge|Credit($|\W)/g,
+					reCardNumber = /\d{1,16}/g,
+					reCardLimit = /\$\d+/g,
+					reAmount = /\$\d+/g;
+
     transactions.forEach(function(transaction) {
-        var name = transaction.match(/(?:\S+\s+){1}(\S+)/)[1],
-            action = transaction.match(/(^|\W)Add|Charge|Credit($|\W)/g)[0].trim();
+        let name = transaction.match(reName)[1],
+            action = transaction.match(reAction)[0].trim();
 
         if (action === 'Add') {
-            var cardNumber = transaction.match(/\d{1,16}/g)[0],
-                cardLimit = parseInt(transaction.match(/\$\d+/g)[0].slice(1)),
+            let cardNumber = transaction.match(reCardNumber)[0],
+                cardLimit = parseInt(transaction.match(reCardLimit)[0].slice(1)),
                 cardValidator = new CardValidator(cardNumber);
 
             cardValidator.lunh10Validate() ? accounts.push(new CreditCard(name, cardNumber, cardLimit)) : accounts.push(new CreditCard(name, 'error', ''))
@@ -45,8 +51,8 @@ function processTransactions(transactions) {
         } else {
 
             if (findAccount(name)) {
-                var currentCreditCard = findAccount(name),
-                    amount = parseInt(transaction.match(/\$\d+/g)[0].slice(1)),
+                let currentCreditCard = findAccount(name),
+                    amount = parseInt(transaction.match(reAmount)[0].slice(1)),
                     cardValidator = new CardValidator(currentCreditCard.cardNumber);
 
                 if (action === 'Charge' && cardValidator.lunh10Validate()) {
@@ -70,7 +76,7 @@ function compare(card1, card2) {
 }
 
 function generateSummary(accounts) {
-    var userSummaries = [];
+    let userSummaries = [];
 
     accounts.sort(compare).forEach(function(account) {
         if (account.cardNumber !== 'error') {
@@ -85,19 +91,21 @@ function generateSummary(accounts) {
     });
 }
 
-function beginProgram(i) {
-    process.stdout.write(`Please enter the transaction you would like to perform.\nType 'exit' to exit the program.\nType 'summary' to generate summary.`);
-    process.stdout.write("   >   ");
-}
-
 process.stdin.on('data', function(data) {
-    var response = data.toString().trim();
+    let response = data.toString().trim();
 
     if (response.match(/^load\W/)) {
-    	var filePath = response.match(/(?<=load\s).*$/);
+    	var filePath = response.match(/^load\s(.*)/)[1].toString();
 
-    	readContent(filePath);
+			readContent(filePath, function(err, content) {
+				var transactions = content.split('\n');
+			  processTransactions(transactions);
+			  process.stdout.write(`==== SUMMARY ====\n`);
+			  generateSummary(accounts);
+			  process.exit();
+			});
     }
+
     switch (response) {
     	case 'exit':
     		process.exit();
@@ -105,16 +113,18 @@ process.stdin.on('data', function(data) {
     	case 'summary':
     		processTransactions(transactionRequests);
     		clear();
+    		process.stdout.write(`==== SUMMARY ====\n`);
     		generateSummary(accounts);
-    		process.exit();
-    		break;
-    	case 'load':
-    		process.stdout.write(`${response}` + '\n');
     		process.exit();
     		break;
     	default:
     		transactionRequests.push(response);
     }
 });
+
+function beginProgram(i) {
+    process.stdout.write(`Please enter the transaction you would like to perform.\nEnter 'exit' to exit the program.\nEnter 'summary' to generate summary.\nEnter 'load <filename>' to run a file with transactions.`);
+    process.stdout.write("   >   ");
+}
 
 beginProgram(0);

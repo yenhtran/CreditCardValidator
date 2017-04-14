@@ -1,0 +1,8 @@
+Add Yen 4012000033330026 $1000
+Add Devin 5424180279791732 $5000
+Add Andrew 373235387881015 $2000
+Charge Yen $5000
+Charge Andrew $800
+Charge Devin $7
+Credit Devin $1000
+Credit Andrew $200

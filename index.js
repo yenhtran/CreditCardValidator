@@ -117,7 +117,6 @@ process.stdin.on('data', function(data) {
     		break;
     	case 'summary':
     		processTransactions(transactionRequests);
-    		clear();
     		process.stdout.write(`==== SUMMARY ====\n`);
     		generateSummary(accounts);
     		process.exit();

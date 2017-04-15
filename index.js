@@ -30,6 +30,14 @@ function findAccount(name) {
     });
 }
 
+function compare(card1, card2) {
+    if (card1.name < card2.name)
+        return -1;
+    if (card1.name > card2.name)
+        return 1;
+    return 0;
+}
+
 function processTransactions(transactions) {
 		const reName = /(?:\S+\s+){1}(\S+)/,
 					reAction = /(^|\W)Add|Charge|Credit($|\W)/g,
@@ -67,14 +75,6 @@ function processTransactions(transactions) {
     });
 }
 
-function compare(card1, card2) {
-    if (card1.name < card2.name)
-        return -1;
-    if (card1.name > card2.name)
-        return 1;
-    return 0;
-}
-
 function generateSummary(accounts) {
     let userSummaries = [];
 
@@ -91,14 +91,19 @@ function generateSummary(accounts) {
     });
 }
 
+function beginProgram(i) {
+    process.stdout.write(`Please enter the transaction you would like to perform.\nEnter 'exit' to exit the program.\nEnter 'summary' to generate summary.\nEnter 'load <filename>' to run a file with transactions.`);
+    process.stdout.write("   >   ");
+}
+
 process.stdin.on('data', function(data) {
     let response = data.toString().trim();
 
     if (response.match(/^load\W/)) {
-    	var filePath = response.match(/^load\s(.*)/)[1].toString();
+    	let filePath = response.match(/^load\s(.*)/)[1].toString();
 
 			readContent(filePath, function(err, content) {
-				var transactions = content.split('\n');
+				let transactions = content.split('\n');
 			  processTransactions(transactions);
 			  process.stdout.write(`==== SUMMARY ====\n`);
 			  generateSummary(accounts);
@@ -121,10 +126,5 @@ process.stdin.on('data', function(data) {
     		transactionRequests.push(response);
     }
 });
-
-function beginProgram(i) {
-    process.stdout.write(`Please enter the transaction you would like to perform.\nEnter 'exit' to exit the program.\nEnter 'summary' to generate summary.\nEnter 'load <filename>' to run a file with transactions.`);
-    process.stdout.write("   >   ");
-}
 
 beginProgram(0);

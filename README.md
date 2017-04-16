@@ -4,7 +4,7 @@ Submission by YEN TRAN
 
 ## An overview of my design decisions
 
-The program is designed to be Object Oriented by implementing both a CreditCard and CardValidator classes. The CreditCard class is responsible for creation, charging, crediting, and checking credit limits. With the CardValidator class, it's main functionality is to check for valid card numbers, specifically the Luhn 10 Algorithm. Other components of the program include a credit card processor that processes transactions and generates the summary, with the the program kicking off with the index.js file.
+The program is designed to be Object Oriented by implementing both CreditCard and CardValidator classes. The CreditCard class is responsible for creation of new credit cards, charging, crediting, and checking credit limits. With the CardValidator class, its main functionality is to check for valid card numbers- specifically the Luhn 10 Algorithm. Other components of the program include a credit card processor that processes transactions and generates the summary, with the the program kicking off with the index.js file.
 
 ## Why I picked JavaScript as my programming language
 

@@ -8,15 +8,15 @@ const chalk = require('chalk'),
     CardValidator = require('./lib/cardValidator.js'),
     creditCardProcessor = require('./lib/creditCardProcessor.js'),
     reLoad = /^load\W/,
-	reFileName = /^load\s(.*)/;
+    reFileName = /^load\s(.*)/;
 
 let transactionRequests = [],
-		accounts = [];
+    accounts = [];
 
 clear();
 console.log(
     chalk.yellow(
-        figlet.textSync('Braintree Challenge', { horizontalLayout: 'full'})
+        figlet.textSync('Braintree Challenge', { horizontalLayout: 'full' })
     )
 );
 
@@ -24,29 +24,29 @@ process.stdin.on('data', function(data) {
     let response = data.toString().trim();
 
     if (response.match(reLoad)) {
-    	let filePath = response.match(reFileName)[1].toString();
+        let filePath = response.match(reFileName)[1].toString();
 
-			creditCardProcessor.readContent(filePath, function(err, content) {
-				let transactions = content.split('\n');
-			  accounts = creditCardProcessor.processTransactions(transactions);
-			  process.stdout.write(`==== SUMMARY ====\n`);
-			  creditCardProcessor.generateSummary(accounts);
-			  process.exit();
-			});
+        creditCardProcessor.readContent(filePath, function(err, content) {
+            let transactions = content.split('\n');
+            accounts = creditCardProcessor.processTransactions(transactions);
+            process.stdout.write(`==== SUMMARY ====\n`);
+            creditCardProcessor.generateSummary(accounts);
+            process.exit();
+        });
     }
 
     switch (response) {
-    	case 'exit':
-    		process.exit();
-    		break;
-    	case 'summary':
-    		accounts = creditCardProcessor.processTransactions(transactionRequests);
-    		process.stdout.write(`==== SUMMARY ====\n`);
-    		creditCardProcessor.generateSummary(accounts);
-    		process.exit();
-    		break;
-    	default:
-    		transactionRequests.push(response);
+        case 'exit':
+            process.exit();
+            break;
+        case 'summary':
+            accounts = creditCardProcessor.processTransactions(transactionRequests);
+            process.stdout.write(`==== SUMMARY ====\n`);
+            creditCardProcessor.generateSummary(accounts);
+            process.exit();
+            break;
+        default:
+            transactionRequests.push(response);
     }
 });
 

@@ -8,7 +8,7 @@ const chalk = require('chalk'),
     CardValidator = require('./lib/cardValidator.js'),
     creditCardProcessor = require('./lib/creditCardProcessor.js'),
     reLoad = /^load\W/,
-		reFileName = /^load\s(.*)/;
+	reFileName = /^load\s(.*)/;
 
 let transactionRequests = [],
 		accounts = [];

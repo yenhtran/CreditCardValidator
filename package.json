@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "mocha ./test/index.test.js -w"
+    "test": "mocha ./test/*.test.js -w"
   },
   "author": "Yen Tran",
   "license": "ISC",

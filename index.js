@@ -39,7 +39,9 @@ process.stdin.on('data', function(data) {
             creditCardProcessor.generateSummary(accounts);
             process.exit();
         });
-    }
+    } else {
+        process.stdout.write(`Sorry, I couldn't interpret that. Please try again.\n`);
+    };
 
     switch (response) {
         case 'exit':

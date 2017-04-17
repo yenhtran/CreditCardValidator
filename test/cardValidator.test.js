@@ -30,7 +30,7 @@ describe('CardValidator', function() {
 
         it('should return false if the length of the number is not between 13 and 19 digits', function() {
             expect(mockCardValidator.isValidLength('54')).to.be.equal(false);
-            expect(mockCardValidator.isValidLength('545454545454545454')).to.be.equal(false);
+            expect(mockCardValidator.isValidLength('5454545454545454545454')).to.be.equal(false);
         });
     });
 

@@ -11,24 +11,24 @@ describe('CardValidator', function() {
         mockCardValidator = new CardValidator('123');
     });
 
-    describe('#lunh10Validate', function() {
-        it('should return true if the number passes the Lunh 10 Algorithm', function() {
+    describe('#luhn10Validate', function() {
+        it('should return true if the number passes the Luhn 10 Algorithm', function() {
             let mockCardValidator = new CardValidator('5454545454545454')
-            expect(mockCardValidator.lunh10Validate()).to.be.equal(true);
+            expect(mockCardValidator.luhn10Validate()).to.be.equal(true);
         });
 
-        it('should return false if the number does not passes the Lunh 10 Algorithm', function() {
+        it('should return false if the number does not passes the Luhn 10 Algorithm', function() {
             let mockCardValidator = new CardValidator('1234567890123456');
-            expect(mockCardValidator.lunh10Validate()).to.be.equal(false);
+            expect(mockCardValidator.luhn10Validate()).to.be.equal(false);
         });
     });
 
     describe('#isValidLength', function() {
-        it('should return true if the length of the number is between 13 and 16 digits', function() {
+        it('should return true if the length of the number is between 13 and 19 digits', function() {
             expect(mockCardValidator.isValidLength('12345678987656')).to.be.equal(true);
         });
 
-        it('should return false if the length of the number is not between 13 and 16 digits', function() {
+        it('should return false if the length of the number is not between 13 and 19 digits', function() {
             expect(mockCardValidator.isValidLength('54')).to.be.equal(false);
             expect(mockCardValidator.isValidLength('545454545454545454')).to.be.equal(false);
         });

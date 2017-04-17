@@ -13,6 +13,9 @@ const chalk = require('chalk'),
 let transactionRequests = [],
     accounts = [];
 
+/*
+    Creates a nice banner in the terminal
+*/
 clear();
 console.log(
     chalk.yellow(
@@ -20,6 +23,9 @@ console.log(
     )
 );
 
+/*
+    Logic to interpret the response from the terminal
+*/
 process.stdin.on('data', function(data) {
     let response = data.toString().trim();
 
@@ -50,6 +56,9 @@ process.stdin.on('data', function(data) {
     }
 });
 
+/*
+    Displays directions to the terminal
+*/
 function beginProgram(i) {
     process.stdout.write(`Please enter the transaction you would like to perform.\nFormat of entries should be:\n    Create New Accounts: Add <Name> <Card Number> <Credit limit>\n    Charge/Credit Accounts: <ACTION> <Name> <Amount>\nEnter 'exit' to exit the program.\nEnter 'summary' to generate summary.\nEnter 'load <filename>' to run a file with transactions.`);
     process.stdout.write("   >   ");

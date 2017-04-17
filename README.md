@@ -12,7 +12,7 @@ I chose to write the program in JavaScript and Node.js since it's the language I
 
 ## Setup Instructions
 
-1. Navigate to root directory and install node packages:
+1. Navigate to root directory and install node dependencies packages:
 
    ```sh
    npm install

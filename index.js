@@ -19,7 +19,7 @@ let transactionRequests = [],
 clear();
 console.log(
     chalk.yellow(
-        figlet.textSync('Braintree Challenge', { horizontalLayout: 'full' })
+        figlet.textSync('Credit Card Validator', { horizontalLayout: 'full' })
     )
 );
 

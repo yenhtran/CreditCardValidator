@@ -8,13 +8,13 @@ describe('Card', function() {
     let mockCard;
 
     beforeEach(function() {
-        mockCard = new CreditCards('Tom', 4111111111111111, 1000);
+        mockCard = new CreditCards('Drogon', 4111111111111111, 1000);
     });
 
     describe('#constructor', function() {
 
         it('should create a new credit card for a given name, card number, and limit', function() {
-            expect(mockCard.name).to.be.equal('Tom');
+            expect(mockCard.name).to.be.equal('Drogon');
             expect(mockCard.cardNumber).to.be.equal(4111111111111111);
             expect(mockCard.cardLimit).to.be.equal(1000);
         });
